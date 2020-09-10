@@ -3,6 +3,20 @@ const cheerio = require('cheerio'); // provides an API for manipulating the resu
 const fs = require('fs'); // used in download function
 const request = require('request'); // used in download function
 
+// Step 0: Create a new folder
+
+const createDir = (dirPath) => {
+  fs.mkdirSync(process.cwd() + dirPath, { recursive: true }, (error) => {
+    if (error) {
+      console.error('An error occurred: ', error);
+    } else {
+      console.log('Your directory is made!');
+    }
+  });
+};
+const path = '/memes';
+createDir(path);
+
 // Step 1: Connect to the website and read the HTML
 
 const hostUrl = 'https://memegen.link/examples';
@@ -33,7 +47,7 @@ const getImageUrl = async () => {
         request(url).pipe(fs.createWriteStream(path)).on('close', callback);
       });
     };
-    download(imageLink, `./memes-downloads/${i}.jpg`, () => {
+    download(imageLink, `./memes/${i}.jpg`, () => {
       console.log(`downloaded ${i}.jpg ✅`);
     });
   }
