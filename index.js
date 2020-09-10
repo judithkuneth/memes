@@ -1,26 +1,44 @@
-const cheerio = require('cheerio'); // implements a subset of core jQuery, removes all the DOM inconsistencies and browser cruft from the jQuery library
+const axios = require('axios').default; //makes http requests, connects to a website
+const cheerio = require('cheerio'); // provides an API for manipulating the resulting data, used for scraping
+const fs = require('fs'); // used in download function
+const request = require('request'); // used in download function
 
-const axios = require('axios').default; //helps makeing html requests from browser
+// Step 1: Connect to the website and read the HTML
 
-const siteUrl = 'https://memegen.link/examples';
+const hostUrl = 'https://memegen.link/examples';
 
 const fetchData = async () => {
-  const result = await axios.get(siteUrl);
+  const result = await axios.get(hostUrl);
   return cheerio.load(result.data);
 };
 
-const getImage = async () => {
+// Step 2: Write a function that identiefies the Image
+
+const getImageUrl = async () => {
   const $ = await fetchData();
-  const image = $('.meme-img');
+  const images = $('.meme-img');
   const link = 'https://memegen.link';
-  // const imageSrc = link + image[0].attribs.src;
+
+  // Step 3: Loop over the first 10 images
 
   for (let i = 0; i < 10; i++) {
-    const imageSrc = link + image[i].attribs.src;
-    console.log(imageSrc);
+    const currentImage = images[i];
+    const imageLink = link + currentImage.attribs.src;
+    console.log(imageLink);
+
+    // Step 4: Write a function to download the images
+
+    const download = (url, path, callback) => {
+      request.head(url, (err, res, body) => {
+        request(url).pipe(fs.createWriteStream(path)).on('close', callback);
+      });
+    };
+    download(imageLink, `./memes-downloads/${i}.jpg`, () => {
+      console.log(`downloaded ${i}.jpg ✅`);
+    });
   }
 };
 
-getImage();
+// Step 5: Download 10 images
 
-// console.log(firstImage);
+getImageUrl();
