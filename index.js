@@ -5,17 +5,13 @@ const request = require('request'); // used in download function
 
 // Step 0: Create a new folder
 
-const createDir = (dirPath) => {
-  fs.mkdirSync(process.cwd() + dirPath, { recursive: true }, (error) => {
-    if (error) {
-      console.error('An error occurred: ', error);
-    } else {
-      console.log('Your directory is made!');
-    }
-  });
-};
-const path = '/memes';
-createDir(path);
+fs.mkdir('./memes', { recursive: true }, function (err) {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log('New directory successfully created.');
+  }
+});
 
 // Step 1: Connect to the website and read the HTML
 
@@ -25,15 +21,22 @@ const fetchData = async () => {
   const result = await axios.get(hostUrl);
   return cheerio.load(result.data);
 };
+// Step 2: Declare a function to download the images
 
-// Step 2: Write a function that identiefies the Image
+const download = (url, path, callback) => {
+  request.head(url, (err, res, body) => {
+    request(url).pipe(fs.createWriteStream(path)).on('close', callback);
+  });
+};
+
+// Step 3: Declare a function that identiefies the Image
 
 const getImageUrl = async () => {
   const $ = await fetchData();
   const images = $('.meme-img');
   const link = 'https://memegen.link';
 
-  // Step 3: Loop over the first 10 images
+  // Step 4: Loop over the first 10 images and download the images
 
   for (let i = 0; i < 10; i++) {
     const currentImage = images[i];
@@ -42,17 +45,12 @@ const getImageUrl = async () => {
 
     // Step 4: Write a function to download the images
 
-    const download = (url, path, callback) => {
-      request.head(url, (err, res, body) => {
-        request(url).pipe(fs.createWriteStream(path)).on('close', callback);
-      });
-    };
     download(imageLink, `./memes/${i}.jpg`, () => {
       console.log(`downloaded ${i}.jpg ✅`);
     });
   }
 };
 
-// Step 5: Download 10 images
+// Step 5: Run function
 
 getImageUrl();

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/judithkuneth/memes.git",
-  "author": "Judith Kuneth <judith.kuneth@gmail.com.com>",
+  "author": "Judith Kuneth <judith.kuneth@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.20.0",
