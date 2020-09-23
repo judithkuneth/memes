@@ -35,33 +35,36 @@ const fetchData = async () => {
   return cheerio.load(result.data);
 };
 
-// Step 2: Write a function that identiefies the Image
+// Step 2: Declare a function to download the images
+
+const download = (url, path, callback) => {
+  request.head(url, (err, res, body) => {
+    request(url).pipe(fs.createWriteStream(path)).on('close', callback);
+  });
+};
+
+// Step 3: Declare a function that identiefies the Image and loops over the firs 10 to download them
 
 const getImages = async () => {
   const $ = await fetchData();
   const images = $('.meme-img');
   const link = 'https://memegen.link';
 
-  // Step 3: Loop over the first 10 images
+  //Loop over the first 10 images:
 
   for (let i = 0; i < 10; i++) {
     const currentImage = images[i];
     const imageLink = link + currentImage.attribs.src;
+
+    //Download 10 images:
+
     console.log(imageLink);
-
-    // Step 4: Write a function to download the images
-
-    const download = (url, path, callback) => {
-      request.head(url, (err, res, body) => {
-        request(url).pipe(fs.createWriteStream(path)).on('close', callback);
-      });
-    };
     download(imageLink, `./memes/${i}.jpg`, () => {
       console.log(`downloaded ${i}.jpg ✅`);
     });
   }
 };
 
-// Step 5: Download 10 images
+// Run function
 
 getImages();
